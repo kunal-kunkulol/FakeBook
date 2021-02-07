@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcrypt');
-const crypto = require('crypto');
 
 const userSchema = new mongoose.Schema(
   {
@@ -36,11 +35,6 @@ const userSchema = new mongoose.Schema(
       required: true,
       enum: ['Male', 'Female', 'Other']
     },
-    userKey: {
-      type: String,
-      default: crypto.randomBytes(3 * 4).toString('hex'),
-      unique: true
-    },
     password: {
       type: String,
       required: [true, 'password is required'],
@@ -63,7 +57,6 @@ const userSchema = new mongoose.Schema(
 );
 
 // Indexes
-userSchema.index({ userKey: 1 }, { unique: true });
 
 //Hooks
 userSchema.pre('save', async function (next) {
@@ -83,7 +76,6 @@ userSchema.methods.comparePassword = function (
 
 userSchema.methods.asJson = function () {
   return {
-    userKey: this.userKey,
     email: this.email,
     firstName: this.firstName,
     lastName: this.lastName,

@@ -2,9 +2,9 @@ const User = require('../models/user');
 const AppError = require('../utils/appError');
 
 exports.beforeAuthValidate = async function beforeAuthValidate(req, res, next) {
-  let userKey = req.session.userKey;
-  const user = await User.findOne({ userKey });
-  if (userKey && user) {
+  let userId = req.session.userId;
+  const user = await User.findById(userId);
+  if (userId && user) {
     res.format({
       html: function () {
         res.status(302).redirect('/timeline');
@@ -75,7 +75,7 @@ exports.register = async function register(req, res, next) {
       password,
       passwordConfirm
     });
-    req.session.userKey = newUser.userKey;
+    req.session.userId = newUser._id;
     res.status(201).json({
       user: newUser.asJson(),
       message: 'User created successfully'
@@ -100,7 +100,7 @@ exports.login = async function login(req, res, next) {
     });
     return;
   }
-  req.session.userKey = user.userKey;
+  req.session.userId = user._id;
   res.status(201).json({
     user: user.asJson(),
     message: 'User logged in successfully'
@@ -108,8 +108,8 @@ exports.login = async function login(req, res, next) {
 };
 
 exports.logout = async function logout(req, res, next) {
-  let userKey = req.session.userKey;
-  if (!userKey) {
+  let userId = req.session.userId;
+  if (!userId) {
     res.status(404).json({
       message: 'User not found!'
     });
@@ -122,14 +122,14 @@ exports.logout = async function logout(req, res, next) {
 };
 
 exports.validateSession = async function validateSession(req, res, next) {
-  let userKey = req.session.userKey;
-  if (!userKey) {
+  let userId = req.session.userId;
+  if (!userId) {
     res.status(401).json({
       message: 'Invalid session! Please login again'
     });
     return;
   }
-  const user = await User.findOne({ userKey });
+  const user = await User.findById(userId);
   if (!user) {
     delete req.session;
     res.status(401).json({

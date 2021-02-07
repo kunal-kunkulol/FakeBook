@@ -11,6 +11,7 @@ const mongoSanitize = require('express-mongo-sanitize');
 const session = require('./config/sessionConfig');
 const router = require('./routes/index');
 const globalErrorHandler = require('./utils/errorhandler');
+const { validateSession } = require('./controllers/authController');
 
 //Initialize
 const app = express();
@@ -31,6 +32,12 @@ app.use(cookieParser());
 app.use(mongoSanitize());
 app.use(xss());
 app.use(compression());
+
+app.use(
+  '/images',
+  validateSession,
+  express.static(__dirname + '/public/images')
+);
 
 global.__basedir = __dirname;
 
