@@ -6,10 +6,12 @@ const {
   updatePost,
   deletePost,
   reactOnPost,
-  getSinglePost
+  getSinglePost,
+  getUserWall
 } = require('../controllers/postsController');
 const upload = require('../config/multerConfig');
 
+router.get('/:id/wall', validateSession, getUserWall);
 router
   .route('/')
   .get(validateSession, getPosts)

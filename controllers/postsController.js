@@ -4,6 +4,7 @@ const User = require('../models/user');
 const Post = require('../models/post');
 const Reaction = require('../models/reaction');
 
+//TODO :- show posts only of friends and current user
 exports.getPosts = async (req, res, next) => {
   try {
     let query = req.query;
@@ -19,11 +20,6 @@ exports.getPosts = async (req, res, next) => {
       .populate('user', 'firstName lastName profilePicUrl')
       .populate({
         path: 'reactions',
-        // populate: {
-        //   path: 'reactor',
-        //   model: 'User',
-        //   select: 'firstName lastName'
-        // }
         select: 'type'
       })
       .populate({
@@ -36,11 +32,6 @@ exports.getPosts = async (req, res, next) => {
           },
           {
             path: 'reactions',
-            // populate: {
-            //   path: 'reactor',
-            //   model: 'User',
-            //   select: 'firstName lastName'
-            // }
             select: 'type'
           }
         ]
@@ -59,25 +50,32 @@ exports.getPosts = async (req, res, next) => {
 exports.createPost = async (req, res, next) => {
   try {
     let userId = req.session.userId;
-    let content = req.body.content;
-    if (content === undefined || content === null) {
-      res.status(400).json({
+    let { content, recipientId } = req.body;
+    if (content === undefined || content === null)
+      return res.status(400).json({
         message: 'Post content is required'
       });
-      return;
-    }
+
     content = content.trim();
-    if (!content) {
-      res.status(400).json({
+    if (!content)
+      return res.status(400).json({
         message: 'Post content is required'
       });
-      return;
-    }
+
+    if (recipientId) {
+      let recipientUser = await User.findById(recipientId);
+      if (!recipientUser)
+        return res.status(400).json({
+          message: 'recipient user not present'
+        });
+    } else recipientId = userId;
+
     const imageUrl =
       req.file !== undefined && req.file !== null ? req.file.path : '';
     const user = await User.findById(userId);
     const post = await Post.create({
       user: user._id,
+      recipient: recipientId,
       content: content,
       imageUrl: imageUrl
     });
@@ -221,11 +219,6 @@ exports.getSinglePost = async (req, res, next) => {
       .populate('user', 'firstName lastName profilePicUrl')
       .populate({
         path: 'reactions',
-        // populate: {
-        //   path: 'reactor',
-        //   model: 'User',
-        //   select: 'firstName lastName'
-        // }
         select: 'type'
       })
       .populate({
@@ -238,17 +231,56 @@ exports.getSinglePost = async (req, res, next) => {
           },
           {
             path: 'reactions',
-            // populate: {
-            //   path: 'reactor',
-            //   model: 'User',
-            //   select: 'firstName lastName'
-            // }
             select: 'type'
           }
         ]
       });
     res.status(200).json({
       post: post
+    });
+  } catch (error) {
+    next(new AppError(error.message, 400));
+  }
+};
+
+exports.getUserWall = async (req, res, next) => {
+  try {
+    let wallUserId = req.params.id;
+    let query = req.query;
+    let page = parseInt(query.page) || 1;
+    let per = parseInt(query.per) || 5;
+    const skip = (page - 1) * per;
+
+    let criteria = {
+      recipient: wallUserId,
+      visibility: 'public'
+    };
+
+    const posts = await Post.find(criteria)
+      .populate('user', 'firstName lastName profilePicUrl')
+      .populate({
+        path: 'reactions',
+        select: 'type'
+      })
+      .populate({
+        path: 'comments',
+        populate: [
+          {
+            path: 'user',
+            model: 'User',
+            select: 'firstName lastName profilePicUrl'
+          },
+          {
+            path: 'reactions',
+            select: 'type'
+          }
+        ]
+      })
+      .sort({ _id: -1 })
+      .skip(skip)
+      .limit(per);
+    res.status(200).json({
+      posts: posts
     });
   } catch (error) {
     next(new AppError(error.message, 400));

@@ -41,17 +41,12 @@ const userSchema = new mongoose.Schema(
       minlength: 8,
       select: false
     },
-    passwordConfirm: {
-      type: String,
-      required: [true, 'Please provide valid pcconfirm'],
-      validate: {
-        //this only on .save and create
-        validator: function (el) {
-          return el === this.password;
-        },
-        message: 'Password does not match!!!!!'
+    friends: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
       }
-    }
+    ]
   },
   { timestamps: true }
 );
@@ -59,12 +54,12 @@ const userSchema = new mongoose.Schema(
 // Indexes
 
 //Hooks
-userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next();
-  this.password = await bcrypt.hash(this.password, 12);
-  this.passwordConfirm = undefined;
-  next();
-});
+// userSchema.pre('save', async function (next) {
+//   if (!this.isModified('password')) return next();
+//   this.password = await bcrypt.hash(this.password, 12);
+//   this.passwordConfirm = undefined;
+//   next();
+// });
 
 //methods
 userSchema.methods.comparePassword = function (
@@ -72,6 +67,10 @@ userSchema.methods.comparePassword = function (
   userPassword
 ) {
   return bcrypt.compare(candidatePassword, userPassword);
+};
+
+userSchema.methods.isFriend = function (userId) {
+  return this.friends.indexOf(userId) > -1;
 };
 
 userSchema.methods.asJson = function () {

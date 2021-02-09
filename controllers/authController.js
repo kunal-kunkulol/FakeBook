@@ -72,8 +72,7 @@ exports.register = async function register(req, res, next) {
       lastName,
       gender,
       birthDate: userBirthDate,
-      password,
-      passwordConfirm
+      password
     });
     req.session.userId = newUser._id;
     res.status(201).json({

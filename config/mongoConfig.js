@@ -2,7 +2,9 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 dotenv.config({ path: './config.env' });
 
-const mongoDb = process.env.DATABASE_URL;
+let mongoDb = '';
+if (process.env.NODE_ENV === 'production') mongoDb = process.env.DATABASE_URL;
+else mongoDb = process.env.DATABASE_URL_LOCAL;
 
 mongoose
   .connect(mongoDb, {
