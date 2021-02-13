@@ -3,3 +3,4 @@ config.env
 public/images/*.png
 .prettier*
 .eslint*
+client/build
