@@ -6,14 +6,14 @@ exports.beforeAuthValidate = async function beforeAuthValidate(req, res, next) {
   const user = await User.findById(userId);
   if (userId && user) {
     res.format({
-      html: function () {
-        res.status(302).redirect('/timeline');
-      },
-      js: function () {
-        res.type('js');
-        res.send(`window.location.path=/timeline`);
-        return;
-      },
+      // html: function () {
+      //   res.status(302).redirect('/timeline');
+      // },
+      // js: function () {
+      //   res.type('js');
+      //   res.send(`window.location.path=/timeline`);
+      //   return;
+      // },
       json: function () {
         res.status(302).send({
           message: 'User already logged in!',
@@ -28,36 +28,14 @@ exports.beforeAuthValidate = async function beforeAuthValidate(req, res, next) {
 };
 
 exports.register = async function register(req, res, next) {
-  const {
-    email,
-    firstName,
-    lastName,
-    password,
-    passwordConfirm,
-    gender,
-    birthDate
-  } = req.body;
-  if (
-    !email ||
-    !firstName ||
-    !lastName ||
-    !password ||
-    !passwordConfirm ||
-    !gender ||
-    !birthDate
-  ) {
+  const { email, firstName, lastName, password, gender, birthDate } = req.body;
+  if (!email || !firstName || !lastName || !password || !gender || !birthDate) {
     res.status(400).json({
       message: 'Invalid params!'
     });
     return;
   }
   let userBirthDate = new Date(birthDate);
-  if (password != passwordConfirm) {
-    res.status(400).json({
-      message: 'Password do not match!'
-    });
-    return;
-  }
   const user = await User.findOne({ email });
   if (user) {
     res.status(400).json({

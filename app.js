@@ -34,7 +34,7 @@ app.use(xss());
 app.use(compression());
 
 app.use(
-  '/images',
+  '/publicImages',
   validateSession,
   express.static(__dirname + '/public/images')
 );
@@ -44,6 +44,14 @@ global.__basedir = __dirname;
 //Routes
 app.use('/api', router);
 
+if (process.env.NODE_ENV === 'production') {
+  console.log('IN production env');
+  app.use(express.static(__dirname + '/client/build'));
+  const path = require('path');
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '/client/build/index.html'));
+  });
+}
 //
 app.use(globalErrorHandler);
 module.exports = app;

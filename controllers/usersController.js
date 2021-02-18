@@ -14,7 +14,6 @@ exports.getCurrentUser = async function (req, res, next) {
 exports.profilePicUpdate = async function (req, res, next) {
   try {
     if (!req.file) {
-      console.log(req.body.file);
       return res.status(400).json({
         message: 'error occurred while updating profile picture'
       });

@@ -55,7 +55,6 @@ exports.acceptFriendRequest = async (req, res, next) => {
 
     res.status(200).json({ message: 'You are now friends' });
   } catch (error) {
-    console.log(error);
     next(new AppError(error.message, 400));
   }
 };
