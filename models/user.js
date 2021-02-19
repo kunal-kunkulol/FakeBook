@@ -54,12 +54,11 @@ const userSchema = new mongoose.Schema(
 // Indexes
 
 //Hooks
-// userSchema.pre('save', async function (next) {
-//   if (!this.isModified('password')) return next();
-//   this.password = await bcrypt.hash(this.password, 12);
-//   this.passwordConfirm = undefined;
-//   next();
-// });
+userSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) return next();
+  this.password = await bcrypt.hash(this.password, 12);
+  next();
+});
 
 //methods
 userSchema.methods.comparePassword = function (
