@@ -6,10 +6,7 @@ import { Provider } from 'react-redux';
 import { Router } from 'react-router-dom';
 import { history } from './helpers';
 import { store } from './helpers';
-import 'react-toastify/dist/ReactToastify.css';
 import './index.css';
-
-import 'bootstrap/dist/css/bootstrap.min.css';
 
 ReactDOM.render(
   <Provider store={store}>

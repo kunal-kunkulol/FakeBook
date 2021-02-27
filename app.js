@@ -34,7 +34,7 @@ app.use(xss());
 app.use(compression());
 
 app.use(
-  '/publicImages',
+  '/images',
   validateSession,
   express.static(__dirname + '/public/images')
 );

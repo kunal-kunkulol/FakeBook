@@ -86,15 +86,23 @@ exports.login = async function login(req, res, next) {
 
 exports.logout = async function logout(req, res, next) {
   let userId = req.session.userId;
-  if (!userId) {
-    res.status(404).json({
-      message: 'User not found!'
-    });
-    return;
-  }
   req.session.destroy();
-  res.status(200).json({
-    message: 'User has logged out successfully!'
+  res.format({
+    html: function () {
+      res.redirect('/login');
+    },
+    js: function () {
+      res.type('js');
+      res.send(`window.location.path=/login`);
+      return;
+    },
+    json: function () {
+      res.status(200).send({
+        message: 'User logged out!',
+        'X-Ajax-Redirect-Url': '/logout'
+      });
+      return;
+    }
   });
 };
 

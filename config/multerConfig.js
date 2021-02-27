@@ -21,7 +21,7 @@ module.exports = multer({
   fileFilter: function (req, file, cb) {
     const ext = path.extname(file.originalname);
     if (ext !== '.png' && ext !== '.jpg' && ext !== '.jpeg') {
-      return cb(new AppError('Only images are allowed', 404), false);
+      return cb(new AppError('Only images are allowed', 400), false);
     }
     cb(null, true);
   }

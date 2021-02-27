@@ -29,7 +29,7 @@ exports.profilePicUpdate = async function (req, res, next) {
     imagePath = req.file.path;
     user = await User.findOneAndUpdate(
       { _id: userId },
-      { profilePicUrl: imagePath },
+      { profilePicUrl: `/images/${req.file.filename}` },
       { new: true }
     );
     return res.status(200).json({
